@@ -15,7 +15,7 @@ Out of scope, neither judged nor counted:
 
 ## The six axes
 
-Ask each question of every block, against the code it describes (read that code):
+Ask each question of every block, against the code it describes. Read that code, and only that code: the enclosing item in full (the function, type, or module the block documents or sits in), plus whatever the comment names (a symbol, a file, a value, a caller):
 
 1. **Exactness**: is it still true of the code it describes?
 2. **Information**: does it say something the code, the names, and the types do not already say?

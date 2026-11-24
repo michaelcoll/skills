@@ -33,16 +33,18 @@ Done when you hold the list of overriding rules (possibly empty) and the list of
 Group the in-scope files into **zones**, one per language, with a language's dialects in the same zone (`.ts`, `.tsx`, `.js`, and the `<script>` of `.vue` are one zone).
 
 - **Diff mode**: the blocks to audit are the comment blocks added or modified by the diff, plus the unchanged blocks attached to code the diff changes (the doc comment of a modified function, a comment inside a modified body): those are the ones a change may have made **stale**. Read each touched file around its hunks to find them.
-- **Paths**: every comment block in the in-scope files. Estimate the volume with `git grep -c` on the comment markers of each language.
+- **Paths**: every comment block in the in-scope files. Estimate the volume with `git grep -c` on the comment markers of each language, and the source lines with `wc -l`.
 
-Done when every in-scope file sits in a zone, with its estimated count of comment lines.
+Then size the run: one sub-agent per ~4,000 source lines of a zone (step 4). When it comes to more than 5 sub-agents, stop before dispatching: give the user the counts of files, source lines, comment lines and sub-agents (roughly 100k tokens each), and let them confirm or narrow the scope to one zone, one folder, or a diff.
+
+Done when every in-scope file sits in a zone with its comment and source line counts, and the run is either within 5 sub-agents or confirmed by the user.
 
 ## 4. Judge every block
 
 Read `RUBRIC.md` before judging. Every judge, you or a sub-agent, reads it too.
 
 - **A diff or a few files** (under ~150 comment lines): judge inline.
-- **Larger**: split each zone into batches of ~150 comment lines (whole files, never half a file) and dispatch one sub-agent per batch, in parallel, on a mid-tier model (such as Sonnet), or on the review agent the repo designates. A lighter model mistakes stale comments for paraphrase. Each prompt carries: the absolute path of `RUBRIC.md`, the overriding rules from step 2, the batch's file list, and the output contract below.
+- **Larger**: split each zone into batches of ~4,000 source lines (whole files, never half a file; a longer file is a batch of its own) and dispatch one sub-agent per batch, in parallel, on a mid-tier model (such as Sonnet), or on the review agent the repo designates. A lighter model mistakes stale comments for paraphrase. Each prompt carries: the absolute path of `RUBRIC.md`, the overriding rules from step 2, the batch's file list, and the output contract below.
 
 Output contract, one line per comment block, nothing else:
 
@@ -52,7 +54,7 @@ Output contract, one line per comment block, nothing else:
 
 The note is one short sentence. For `Rewrite`, the proposed text. For `Ticket`, a proposed issue title.
 
-Save all the lines in one file in a temp directory. Done when every file of the work list has been read in full, every block in it holds a line, and no batch came back empty or truncated.
+Save all the lines in one file in a temp directory. Done when every block of the work list holds a line, judged against the code `RUBRIC.md` names, and no batch came back empty or truncated.
 
 ## 5. Report
 
