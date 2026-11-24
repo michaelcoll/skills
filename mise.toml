@@ -1,0 +1,16 @@
+[hooks]
+postinstall = "lefthook install"
+
+[tools]
+"go:github.com/evilmartians/lefthook/v2" = "latest"
+"npm:prettier" = "latest"
+node = "lts"
+
+[tasks.format]
+description = "Formats the Markdown files"
+run = "prettier --write --list-different \"**/*.md\""
+alias = ["f"]
+
+[tasks.format-check]
+description = "Checks the Markdown formatting"
+run = "prettier --check \"**/*.md\""
